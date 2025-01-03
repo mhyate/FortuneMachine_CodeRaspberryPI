@@ -6,10 +6,6 @@ import serial
 import os
 from Interface.Interface import InterfaceGraphique
 
-if __name__ == "__main__":
-    interface = InterfaceGraphique()
-    interface.demarrer()
-
 # Détection automatique du port série
 def detect_serial_port():
     if os.name == 'posix':  # Pour Mac ou Linux (incluant Raspberry Pi)
@@ -50,14 +46,5 @@ else:
     printer = None
 
 if __name__ == "__main__":
-    lecteur = LecteurPiece()
-
-    if lecteur:
-        # Lancement de l'interface pour le choix du thème
-        theme_choisi = DisplayChoixTheme()
-
-        # Demander ce qu'il faut faire (afficher ou imprimer)
-        handle_fortune_request(theme_choisi, printer)
-    else:
-        # Si aucune pièce n'est détectée
-        print("Aucune pièce détectée.")
+    interface = InterfaceGraphique(printer)
+    interface.demarrer()
