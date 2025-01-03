@@ -1,6 +1,6 @@
 import tkinter as tk
 import os
-import sys  # Ajout de cet import
+import sys
 from PIL import Image, ImageTk
 from tkinter import messagebox
 
@@ -12,6 +12,7 @@ class InterfaceGraphique:
     def __init__(self, printer=None):
         self.root = tk.Tk()
         self.root.title("Choisissez le thème de votre fortune")
+        self.root.attributes('-topmost', True)  # Place toujours la fenêtre au premier plan
         self.printer = printer
         self.canvas = tk.Canvas(self.root, width=self.root.winfo_screenwidth(), height=self.root.winfo_screenheight())
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -91,9 +92,24 @@ class InterfaceGraphique:
         return messages_api.get(theme, "Message non disponible.")
 
     def reinitialiser_interface(self):
-        """Réinitialise complètement l'interface"""
-        self.root.destroy()
-        os.execl(sys.executable, sys.executable, *sys.argv)
+        """Affiche une animation de chargement, lance le nouveau processus et ferme l'ancien ensuite"""
+        for widget in self.button_frame.winfo_children():
+            widget.destroy()
+
+        # Ajouter un message de chargement
+        label = tk.Label(self.button_frame, text="Chargement en cours...", font=("Helvetica", 30), bg='white', fg='black')
+        label.pack(pady=20)
+
+        # Mettre à jour pour afficher la fenêtre de chargement
+        self.root.update()
+
+        # Lancer un nouveau processus
+        pid = os.fork()
+        if pid == 0:  # Enfant
+            os.execlp("python3", "python3", "main.py")
+        else:  # Parent
+            self.root.withdraw()  # Cache temporairement la fenêtre de chargement
+            self.root.destroy()  # Ferme l'ancienne fenêtre une fois le nouveau processus lancé
 
     def demarrer(self):
         """Lancer l'interface"""
