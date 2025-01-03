@@ -1,7 +1,9 @@
 import tkinter as tk
 import os
+import sys  # Ajout de cet import
 from PIL import Image, ImageTk
 from tkinter import messagebox
+
 
 # Ajouter le chemin de l'image de fond
 cheminBGImage = '/Users/mouhamadouyate/Desktop/Gestion de projet Fortune Machine_Bureau/3_Realisation/Codes/Code de la Raspberry/FortuneMachine_CodeRaspberryPI-main/Interface/background.png'
