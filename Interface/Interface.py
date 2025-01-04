@@ -66,7 +66,9 @@ class InterfaceGraphique:
         themes = ["Amour", "Meteo", "Horoscope", "Santé", "Chance", "Fortune"]
         for i, theme in enumerate(themes):
             button = tk.Button(self.button_frame, text=theme, font=("Helvetica", 16), width=25, height=5,
-                               command=lambda t=theme: self.demander_impression(t))
+                             command=lambda t=theme: self.demander_impression(t),
+                             bg='white', relief='flat', borderwidth=0,
+                             activebackground='#f0f0f0')
             button.grid(row=i // 3, column=i % 3, padx=10, pady=10)
 
     def imprimer_fortune(self, texte):
