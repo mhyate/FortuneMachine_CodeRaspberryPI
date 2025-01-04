@@ -94,24 +94,13 @@ class InterfaceGraphique:
         return messages_api.get(theme, "Message non disponible.")
 
     def reinitialiser_interface(self):
-        """Affiche une animation de chargement, lance le nouveau processus et ferme l'ancien ensuite"""
+        """Retourne à l'interface principale"""
+        # Efface tous les widgets actuels
         for widget in self.button_frame.winfo_children():
             widget.destroy()
-
-        # Ajouter un message de chargement
-        label = tk.Label(self.button_frame, text="Chargement en cours...", font=("Helvetica", 30), bg='white', fg='black')
-        label.pack(pady=20)
-
-        # Mettre à jour pour afficher la fenêtre de chargement
-        self.root.update()
-
-        # Lancer un nouveau processus
-        pid = os.fork()
-        if pid == 0:  # Enfant
-            os.execlp("python3", "python3", "main.py")
-        else:  # Parent
-            self.root.withdraw()  # Cache temporairement la fenêtre de chargement
-            self.root.destroy()  # Ferme l'ancienne fenêtre une fois le nouveau processus lancé
+        
+        # Réaffiche le menu principal
+        self.afficher_menu()
 
     def demarrer(self):
         """Lancer l'interface"""
