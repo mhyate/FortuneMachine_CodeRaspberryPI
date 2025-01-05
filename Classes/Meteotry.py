@@ -5,9 +5,9 @@ class Meteotry:
     def __init__(self):
         """Initialisation de l'URL de l'API"""
         self.api_url = "https://api.open-meteo.com/v1/forecast"
-        # Coordonnées de Paris
-        self.latitude = 48.8566
-        self.longitude = 2.3522
+        # Coordonnées de Tours
+        self.latitude = 47.3941
+        self.longitude = 0.6848
 
     def getWeather(self):
         """Récupérer les données météo"""
@@ -67,7 +67,7 @@ class Meteotry:
         weather_code = current.get('weather_code')
         weather_desc = self.get_weather_description(weather_code)
 
-        message = f"Météo actuelle à Paris:\n"
+        message = f"Météo actuelle à Tours:\n"
         message += f"🌡️ {temp}°C\n"
         message += f"💧 Humidité: {humidity}%\n"
         message += f"🌤️ {weather_desc}"

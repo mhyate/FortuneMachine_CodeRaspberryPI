@@ -14,23 +14,25 @@ class Blagues:
             response = requests.get(self.api_url, headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
-                joke = f"{data['joke']}\n- {data['answer']}"
+                # Formatage de la blague avec des emojis
+                joke = f"😄 {data['joke']}\n\n😎 {data['answer']}"
+                print("Blague récupérée:", joke)  # Debug
                 return joke
-            else:
-                return None
-        except requests.exceptions.RequestException as e:
-            print(f"Erreur lors de la requête: {e}")
+            print("Erreur API:", response.status_code)  # Debug
+            return None
+        except Exception as e:
+            print(f"Erreur lors de la requête: {e}")  # Debug
             return None
 
     def run(self):
         """Exécuter le processus principal pour obtenir une blague"""
         blague = self.getJoke()
         if blague:
-            print(blague)  # Pour le debug dans le terminal
+            print("Blague renvoyée:", blague)  # Debug
             return blague
         return None
 
 # Test de la classe
 if __name__ == "__main__":
     blagues = Blagues()
-    blagues.run() 
+    print(blagues.run()) 
