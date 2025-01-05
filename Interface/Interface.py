@@ -3,6 +3,11 @@ import os
 import sys
 from PIL import Image, ImageTk
 from tkinter import messagebox
+from Classes.CNQuotes import CNQuotes
+from Classes.Love import Love
+from Classes.Meteotry import Meteotry
+from Classes.Hearth import Hearth
+from Classes.FoodOK import FoodOK
 
 
 # Ajouter le chemin de l'image de fond
@@ -82,16 +87,28 @@ class InterfaceGraphique:
             self.afficher_message("Aucune imprimante connectée.")
 
     def recuperer_message_api(self, theme):
-        """Simule la récupération d'un message depuis l'API"""
-        messages_api = {
-            "Amour": "L'amour est la clé de votre bonheur.",
-            "Meteo": "Demain, un grand soleil brillera dans votre cœur.",
-            "Horoscope": "Les étoiles brillent pour vous aujourd'hui.",
-            "Santé": "Prenez soin de vous, vous êtes précieux.",
-            "Chance": "Un événement inattendu changera votre vie.",
-            "Fortune": "Votre avenir est rempli de succès."
-        }
-        return messages_api.get(theme, "Message non disponible.")
+        """Récupère un message depuis l'API correspondante au thème choisi"""
+        try:
+            if theme == "Amour":
+                api = Love()
+                return api.run()
+            elif theme == "Meteo":
+                api = Meteotry()
+                return api.displayWeather()
+            elif theme == "Horoscope":
+                api = Hearth()
+                return api.run()
+            elif theme == "Santé":
+                api = FoodOK()
+                return api.getQuote()
+            elif theme == "Chance" or theme == "Fortune":
+                api = CNQuotes()
+                return api.fetchData()
+            else:
+                return "Thème non disponible."
+        except Exception as e:
+            print(f"Erreur lors de la récupération du message: {e}")
+            return "Une erreur est survenue lors de la récupération du message."
 
     def reinitialiser_interface(self):
         """Retourne à l'interface principale"""
