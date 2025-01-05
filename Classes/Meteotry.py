@@ -1,76 +1,84 @@
 import requests
+from datetime import datetime
 
 class Meteotry:
     def __init__(self):
-        """Initialisation de l'URL de l'API et des en-têtes requis"""
-        self.api_url = "https://weatherapi-com.p.rapidapi.com/current.json"
-        self.api_key = "a1892cd212msh8d5e1cbeb4e4215p1ec1f6jsn839276332c9f"
-        self.headers = {
-            "X-RapidAPI-Key": self.api_key,
-            "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com"
-        }
-        
+        """Initialisation de l'URL de l'API"""
+        self.api_url = "https://api.open-meteo.com/v1/forecast"
+        # Coordonnées de Paris
+        self.latitude = 48.8566
+        self.longitude = 2.3522
+
     def getWeather(self):
-        latitude = 36.7448043
-        longitude = 3.8950017
-        querystring = {"q": f"{latitude},{longitude}"}
-        response = requests.get(self.api_url, headers=self.headers, params=querystring)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            response.raise_for_status()
-    
-    def displayWeather(self):
+        """Récupérer les données météo"""
         try:
-            weather_data = self.getWeather()
-            
-            location = weather_data['location']['name']
-            region = weather_data['location']['region']
-            country = weather_data['location']['country']
-            #print(f"Location: {location}, {region}, {country}")
+            params = {
+                "latitude": self.latitude,
+                "longitude": self.longitude,
+                "current": ["temperature_2m", "relative_humidity_2m", "precipitation", "weather_code"]
+            }
+            response = requests.get(self.api_url, params=params)
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            print(f"Erreur lors de la requête météo: {e}")
+            return None
 
-            temp_c = weather_data['current']['temp_c']
-            #print(f"Temperature: {temp_c}°C")
+    def get_weather_description(self, code):
+        """Convertir le code météo en description en français"""
+        weather_codes = {
+            0: "Ciel dégagé",
+            1: "Principalement dégagé",
+            2: "Partiellement nuageux",
+            3: "Couvert",
+            45: "Brumeux",
+            48: "Brouillard givrant",
+            51: "Bruine légère",
+            53: "Bruine modérée",
+            55: "Bruine dense",
+            61: "Pluie légère",
+            63: "Pluie modérée",
+            65: "Pluie forte",
+            71: "Neige légère",
+            73: "Neige modérée",
+            75: "Neige forte",
+            77: "Grains de neige",
+            80: "Averses légères",
+            81: "Averses modérées",
+            82: "Averses violentes",
+            85: "Averses de neige légères",
+            86: "Averses de neige fortes",
+            95: "Orage",
+            96: "Orage avec grêle légère",
+            99: "Orage avec grêle forte"
+        }
+        return weather_codes.get(code, "Conditions météorologiques inconnues")
 
-            condition = weather_data['current']['condition']['text']
-            #print(f"Condition: {condition}")
+    def displayWeather(self):
+        """Formater le message météo"""
+        data = self.getWeather()
+        if not data or 'current' not in data:
+            return None
 
-            # Message en fonction de la température
-            if temp_c <= 0:
-                message = "Il fait si froid dehors que même les pingouins cherchent des couvertures!"
-            elif 0 < temp_c <= 5:
-                message = "Un peu frisquet! Le moment est venu de ressortir ce pull moche mais chaud."
-            elif 5 < temp_c <= 10:
-                message = "Le temps est agréable, une petite veste suffira."
-            elif 10 < temp_c <= 15:
-                message = "Température agréable! Pas trop chaud, pas trop froid... Juste parfait pour une balade."
-            elif 15 < temp_c <= 20:
-                message = "Il fait si chaud dehors que votre charisme pourrait provoquer une émeute de lézards."
-            elif 20 < temp_c <= 25:
-                message = "Le soleil vous fait perdre la tete, pensez à vous changer les idées"
-            elif 25 < temp_c <= 30:
-                message = "Il fait tellement chaud que même les cactus cherchent de l'ombre!"
-            else:
-                message = "Il fait très chaud dehors, restez hydraté et évitez le soleil direct."
+        current = data['current']
+        temp = current.get('temperature_2m')
+        humidity = current.get('relative_humidity_2m')
+        weather_code = current.get('weather_code')
+        weather_desc = self.get_weather_description(weather_code)
 
-            print(message)
+        message = f"Météo actuelle à Paris:\n"
+        message += f"🌡️ {temp}°C\n"
+        message += f"💧 Humidité: {humidity}%\n"
+        message += f"🌤️ {weather_desc}"
 
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching weather data: {e}")
+        return message
 
     def run(self):
-        """Exécuter le processus principal pour obtenir citation traduite."""
-        metheo = self.displayWeather()
-        if metheo:
-            print(metheo)
-        else:
-            return self.defaultMessage()
-        
-    def defaultMessage(self):
-        """Retourner un message par défaut."""
-        return "N'oubliez pas d'etre heureux !"
-    
-# Example usage:
+        """Exécuter le processus principal"""
+        return self.displayWeather()
+
+# Test de la classe
 if __name__ == "__main__":
-    weather_api = Meteotry()
-    weather_api.run()
+    meteo = Meteotry()
+    print(meteo.run())

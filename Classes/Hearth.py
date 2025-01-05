@@ -57,17 +57,19 @@ class Hearth:
 
     def defaultMessage(self):
         """Retourner un message par défaut."""
-        return "Hearth"
+        return "Serveur momentanément indisponible"
 
     def run(self):
-        """Exécuter le processus principal pour obtenir citation traduite."""
+        """Exécuter le processus principal pour obtenir l'horoscope."""
         description = self.findDescription()
-
         if description:
-            print("description",description)
-        #else:
-            #print(self.defaultMessage())
-        
+            print("Horoscope:", description)  # Pour le debug dans le terminal
+            return description
+        else:
+            message = self.defaultMessage()
+            print("Message par défaut:", message)  # Pour le debug dans le terminal
+            return message
+
 # Utilisation de la classe HearthStone
 if __name__ == "__main__":
     cartes = Hearth()

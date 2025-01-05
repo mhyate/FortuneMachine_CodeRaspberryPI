@@ -4,11 +4,9 @@ import sys
 from PIL import Image, ImageTk
 from tkinter import messagebox
 from Classes.CNQuotes import CNQuotes
-from Classes.Love import Love
 from Classes.Meteotry import Meteotry
-from Classes.Hearth import Hearth
-from Classes.FoodOK import FoodOK
-
+from Classes.Horoscope import Horoscope
+from Classes.Blagues import Blagues
 
 # Ajouter le chemin de l'image de fond
 cheminBGImage = '/Users/mouhamadouyate/Desktop/Gestion de projet Fortune Machine_Bureau/3_Realisation/Codes/Code de la Raspberry/FortuneMachine_CodeRaspberryPI-main/Interface/background.png'
@@ -68,13 +66,13 @@ class InterfaceGraphique:
         for widget in self.button_frame.winfo_children():
             widget.destroy()
 
-        themes = ["Amour", "Meteo", "Horoscope", "Santé", "Chance", "Fortune"]
+        themes = ["Météo", "Chuck Norris", "Horoscope", "Blagues"]
         for i, theme in enumerate(themes):
             button = tk.Button(self.button_frame, text=theme, font=("Helvetica", 16), width=25, height=5,
                              command=lambda t=theme: self.demander_impression(t),
                              bg='white', relief='flat', borderwidth=0,
                              activebackground='#f0f0f0')
-            button.grid(row=i // 3, column=i % 3, padx=10, pady=10)
+            button.grid(row=i // 2, column=i % 2, padx=10, pady=10)
 
     def imprimer_fortune(self, texte):
         """Imprime la fortune si une imprimante est connectée"""
@@ -89,26 +87,26 @@ class InterfaceGraphique:
     def recuperer_message_api(self, theme):
         """Récupère un message depuis l'API correspondante au thème choisi"""
         try:
-            if theme == "Amour":
-                api = Love()
-                return api.run()
-            elif theme == "Meteo":
+            message = None
+            if theme == "Météo":
                 api = Meteotry()
-                return api.displayWeather()
-            elif theme == "Horoscope":
-                api = Hearth()
-                return api.run()
-            elif theme == "Santé":
-                api = FoodOK()
-                return api.getQuote()
-            elif theme == "Chance" or theme == "Fortune":
+                message = api.run()
+            elif theme == "Chuck Norris":
                 api = CNQuotes()
-                return api.fetchData()
-            else:
-                return "Thème non disponible."
+                message = api.run()
+            elif theme == "Horoscope":
+                api = Horoscope()
+                message = api.run()
+            elif theme == "Blagues":
+                api = Blagues()
+                message = api.run()
+            
+            if not message:
+                return None
+            return message
         except Exception as e:
             print(f"Erreur lors de la récupération du message: {e}")
-            return "Une erreur est survenue lors de la récupération du message."
+            return None
 
     def reinitialiser_interface(self):
         """Retourne à l'interface principale"""

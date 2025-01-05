@@ -47,15 +47,19 @@ class Love:
 
     def defaultMessage(self):
         """Retourner un message par défaut."""
-        return "Love"
+        return "Serveur momentanément indisponible"
     
     def run(self):
-        """Exécuter le processus principal pour obtenir citation traduite."""
+        """Exécuter le processus principal pour obtenir la prédiction d'amour."""
         result = self.getQuote()
         if result and 'result' in result:
-            print(f"{result['result']}")
+            message = f"Compatibilité amoureuse : {result['percentage']}% - {result['result']}"
+            print(message)
+            return message
         else:
-            return self.defaultMessage()
+            message = "L'amour est dans l'air ! Gardez votre cœur ouvert aux possibilités."
+            print(message)
+            return message
 
 
 if __name__ == "__main__":
