@@ -1,105 +1,77 @@
 import tkinter as tk
-from ControlePiece import LecteurPiece
-from ImpressionTicket import TicketPrinter
-import adafruit_thermal_printer
-import serial
+import argparse
 import os
-import threading
-import time
+import signal
 from Interface.Interface import InterfaceGraphique
+from communication_pic24 import CommunicationPIC24
 from gestion_hibernation import GestionHibernation
 
-# Détection automatique du port série
-def detect_serial_port():
-    if os.name == 'posix':  # Pour Mac ou Linux (incluant Raspberry Pi)
-        possible_ports = ["/dev/serial0", "/dev/ttyAMA0", "/dev/ttyS0", "/dev/tty.Bluetooth-Incoming-Port", "/dev/tty.debug-console"]
-        for port in possible_ports:
-            if os.path.exists(port):
-                try:
-                    with serial.Serial(port, baudrate=19200, timeout=1) as test_port:
-                        return port
-                except serial.SerialException:
-                    continue
-    return None
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Fortune Machine')
+    parser.add_argument('--test-mode', action='store_true',
+                       help='Active le mode test (sans PIC24)')
+    parser.add_argument('--port', default='/dev/ttyUSB0',
+                       help='Port série pour la communication avec le PIC24')
+    return parser.parse_args()
 
-class CommunicationPIC24:
-    def __init__(self, port, baudrate=9600):
+class FortuneMachine:
+    def __init__(self, test_mode=False, port='/dev/ttyUSB0'):
+        self.test_mode = test_mode
         self.port = port
-        self.baudrate = baudrate
-        self.serial = None
-        self.piece_validee = False
+        self.interface = None
+        self.pic24 = CommunicationPIC24(port=port, test_mode=test_mode)
+        self.hibernation = GestionHibernation()
+        signal.signal(signal.SIGTERM, self.arreter)
+        signal.signal(signal.SIGINT, self.arreter)
+
+    def demarrer(self):
+        """Démarre la Fortune Machine"""
+        print(f"Démarrage en mode {'test' if self.test_mode else 'production'}")
         
-    def connecter(self):
-        try:
-            self.serial = serial.Serial(self.port, self.baudrate, timeout=1)
-            print(f"Connexion établie avec le PIC24 sur {self.port}")
-            return True
-        except Exception as e:
-            print(f"Erreur de connexion avec le PIC24: {e}")
-            return False
-    
-    def lire_piece(self):
-        if not self.serial:
-            return False
-        try:
-            if self.serial.in_waiting:
-                message = self.serial.readline().decode('utf-8').strip()
-                if message == "PIECE_VALIDEE":
-                    self.piece_validee = True
-                    return True
-            return False
-        except Exception as e:
-            print(f"Erreur de lecture: {e}")
-            return False
-    
-    def envoyer_commande_impression(self, message):
-        if not self.serial:
-            return False
-        try:
-            commande = f"IMPRIMER:{message}\n"
-            self.serial.write(commande.encode('utf-8'))
-            return True
-        except Exception as e:
-            print(f"Erreur d'envoi: {e}")
-            return False
+        # Connexion avec le PIC24
+        if not self.pic24.connecter():
+            if not self.test_mode:
+                print("Impossible de se connecter au PIC24")
+                return
+        
+        # Démarrage de l'écoute série
+        self.pic24.demarrer_ecoute()
+        
+        while True:
+            try:
+                # Attente d'une pièce
+                print("En attente d'une pièce...")
+                if self.pic24.attendre_piece():
+                    # Création et affichage de l'interface
+                    self.interface = InterfaceGraphique(printer=self.pic24)
+                    self.interface.demarrer()
+                    
+                    # Réinitialisation pour la prochaine pièce
+                    self.pic24.reset()
+                    
+                    # Si l'interface est fermée, on attend la prochaine pièce
+                    if hasattr(self, 'interface'):
+                        self.interface.root.destroy()
+                        self.interface = None
+                
+            except Exception as e:
+                print(f"Erreur : {e}")
+                if not self.test_mode:
+                    # En production, on continue d'attendre
+                    continue
+                else:
+                    # En mode test, on arrête
+                    break
 
-def surveillance_inactivite(gestion_hibernation):
-    while True:
-        gestion_hibernation.verifier_inactivite()
-        time.sleep(10)  # Vérifier toutes les 10 secondes
-
-# Configuration initiale
-serial_port = detect_serial_port()
-if serial_port:
-    print(f"Port série détecté : {serial_port}")
-    uart = serial.Serial(serial_port, baudrate=19200, timeout=3000)
-    printer = adafruit_thermal_printer.get_printer_class(2.69)(uart)
-else:
-    print("Aucun port série disponible. L'interface fonctionnera sans le matériel.")
-    printer = None
-
-# Initialisation de la gestion d'hibernation
-gestion_hibernation = GestionHibernation(delai_inactivite=300000)  # 5 minutes
-
-# Démarrage du thread de surveillance d'inactivité
-thread_surveillance = threading.Thread(target=surveillance_inactivite, args=(gestion_hibernation,), daemon=True)
-thread_surveillance.start()
+    def arreter(self, signum=None, frame=None):
+        """Arrête proprement la Fortune Machine"""
+        print("\nArrêt de la Fortune Machine...")
+        if self.pic24:
+            self.pic24.arreter()
+        if self.interface:
+            self.interface.root.quit()
 
 if __name__ == "__main__":
-    # Initialisation de la communication avec le PIC24
-    pic24_com = CommunicationPIC24("/dev/ttyUSB0")  # Ajuster le port selon votre configuration
-    if pic24_com.connecter():
-        print("Communication établie avec le PIC24")
-    
-    # Création et démarrage de l'interface
-    interface = InterfaceGraphique(printer)
-    
-    # Fonction de vérification périodique des pièces
-    def verifier_piece():
-        if pic24_com.lire_piece():
-            gestion_hibernation.reset_timer()  # Réinitialiser le timer d'hibernation
-            interface.afficher_menu()  # Afficher l'interface quand une pièce est détectée
-        interface.root.after(100, verifier_piece)  # Vérifier toutes les 100ms
-    
-    verifier_piece()  # Démarrer la vérification
-    interface.demarrer()
+    args = parse_arguments()
+    fortune_machine = FortuneMachine(test_mode=args.test_mode, port=args.port)
+    fortune_machine.demarrer()

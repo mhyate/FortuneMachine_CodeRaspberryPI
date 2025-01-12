@@ -14,8 +14,15 @@ cheminBGImage = '/Users/mouhamadouyate/Desktop/Gestion de projet Fortune Machine
 class InterfaceGraphique:
     def __init__(self, printer=None):
         self.root = tk.Tk()
-        self.root.title("Choisissez le thème de votre fortune")
-        self.root.attributes('-topmost', True)  # Place toujours la fenêtre au premier plan
+        self.root.title("Fortune Machine")
+        
+        # Configuration plein écran
+        self.root.attributes('-fullscreen', True)  # Force le mode plein écran
+        self.root.config(cursor="none")  # Cache le curseur de la souris
+        
+        # Capture la touche Escape pour quitter le plein écran (utile pour le développement)
+        self.root.bind('<Escape>', lambda e: self.root.attributes('-fullscreen', False))
+        
         self.printer = printer
         self.canvas = tk.Canvas(self.root, width=self.root.winfo_screenwidth(), height=self.root.winfo_screenheight())
         self.canvas.pack(fill=tk.BOTH, expand=True)

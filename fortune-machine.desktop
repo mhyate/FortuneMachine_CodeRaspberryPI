@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Fortune Machine
+Comment=Interface de la Fortune Machine
+Exec=/usr/bin/python3 /home/pi/FortuneMachine_CodeRaspberryPI-main/main.py
+Path=/home/pi/FortuneMachine_CodeRaspberryPI-main
+Terminal=false
+X-GNOME-Autostart-enabled=true 
