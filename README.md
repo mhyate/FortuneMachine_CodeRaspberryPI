@@ -7,28 +7,68 @@ La Fortune Machine est un projet interactif qui délivre des "fortunes" (message
 - **Horoscope** : Fournit des prédictions astrologiques quotidiennes
 - **Blagues** : Raconte des blagues en français
 
-## Installation
+## Installation et Gestion des Dépendances
 
 ### Prérequis
-- Python 3.8 ou supérieur (éviter Python 3.13 qui a des problèmes de compatibilité)
+- Python 3.x
 - pip (gestionnaire de paquets Python)
-- Connexion Internet pour les APIs
-- Imprimante thermique (optionnelle)
+- venv (module de création d'environnements virtuels)
 
-### Installation Recommandée
+### Configuration de l'Environnement
+
 1. Créer un environnement virtuel :
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # Sur macOS/Linux
-.\venv\Scripts\activate   # Sur Windows
 ```
 
-2. Installer les dépendances :
+2. Activer l'environnement virtuel :
+- Sur macOS/Linux :
 ```bash
-pip3 install -r requirements.txt
+source venv/bin/activate
+```
+- Sur Windows :
+```bash
+.\venv\Scripts\activate
 ```
 
-Note : Sur macOS, l'installation de `RPi.GPIO` échouera car c'est une bibliothèque spécifique à Raspberry Pi. Cela n'empêche pas le fonctionnement du programme en mode simulation.
+3. Mettre à jour pip et les outils de base :
+```bash
+python3 -m pip install --upgrade pip setuptools wheel
+```
+
+4. Installer les dépendances :
+```bash
+pip install -r requirements.txt
+```
+
+### Résolution des Problèmes Courants
+
+1. Si vous rencontrez une erreur `ModuleNotFoundError` :
+   - Vérifiez que l'environnement virtuel est activé
+   - Réinstallez les dépendances avec : `pip install -r requirements.txt`
+
+2. En cas d'erreur avec `python-dotenv` ou d'autres modules :
+   ```bash
+   # Supprimer l'environnement virtuel existant
+   rm -rf venv
+   
+   # Recréer un environnement propre
+   python3 -m venv venv
+   source venv/bin/activate
+   
+   # Installer les dépendances
+   python3 -m pip install --upgrade pip setuptools wheel
+   pip install -r requirements.txt
+   ```
+
+3. Sur macOS, certains modules comme `RPi.GPIO` ne sont pas compatibles :
+   - Ces modules sont ignorés sur macOS
+   - Ils seront installés uniquement sur Raspberry Pi
+
+### Notes Importantes
+- Toujours utiliser l'environnement virtuel pour exécuter le projet
+- Les versions des dépendances sont fixées pour assurer la compatibilité
+- Le fichier `.env` doit être créé localement pour les clés API (voir section Configuration)
 
 ## Guide de Dépannage
 
