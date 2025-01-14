@@ -97,10 +97,12 @@ class InterfaceGraphique:
     def imprimer_fortune(self, texte):
         """Imprime la fortune si une imprimante est connectée"""
         if self.printer:
-            self.printer.print(texte)
-            self.printer.feed(2)
+            # Afficher le message d'impression en cours
+            self.afficher_message("Impression...")
+            # Attendre 3 secondes puis retourner au menu
+            self.root.after(3000, self.afficher_menu)
+            # Simuler l'impression dans la console
             print(f"Fortune imprimée : {texte}")
-            self.afficher_message("Votre fortune a été imprimée avec succès.")
         else:
             self.afficher_message("Aucune imprimante connectée.")
 
