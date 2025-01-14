@@ -7,28 +7,41 @@ from Classes.CNQuotes import CNQuotes
 from Classes.Meteotry import Meteotry
 from Classes.Horoscope import Horoscope
 from Classes.Blagues import Blagues
+import platform
 
 # Ajouter le chemin de l'image de fond
-cheminBGImage = '/Users/mouhamadouyate/Desktop/Gestion de projet Fortune Machine_Bureau/3_Realisation/Codes/Code de la Raspberry/FortuneMachine_CodeRaspberryPI-main/Interface/background.png'
+cheminBGImage = os.path.join(os.path.dirname(__file__), 'background.png')
 
 class InterfaceGraphique:
     def __init__(self, printer=None):
+        print("Initialisation de l'interface graphique...")
         self.root = tk.Tk()
         self.root.title("Fortune Machine")
         
         # Configuration plein écran
+        print("Configuration du mode plein écran...")
         self.root.attributes('-fullscreen', True)  # Force le mode plein écran
-        self.root.config(cursor="none")  # Cache le curseur de la souris
+        
+        # Cache le curseur uniquement sur Raspberry Pi
+        if platform.system() != 'Darwin':  # Si ce n'est pas macOS
+            print("Configuration du curseur (masqué)...")
+            self.root.config(cursor="none")
+        else:
+            print("Configuration du curseur (visible)...")
         
         # Capture la touche Escape pour quitter le plein écran (utile pour le développement)
         self.root.bind('<Escape>', lambda e: self.root.attributes('-fullscreen', False))
         
         self.printer = printer
+        print("Création du canvas...")
         self.canvas = tk.Canvas(self.root, width=self.root.winfo_screenwidth(), height=self.root.winfo_screenheight())
         self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        print("Chargement de l'image de fond...")
         self.update_background()
 
         # Cadre des boutons
+        print("Création du cadre des boutons...")
         self.button_frame = tk.Frame(self.canvas, bg='white')
         self.button_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
