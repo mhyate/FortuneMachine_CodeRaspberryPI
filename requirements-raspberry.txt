@@ -1,0 +1,25 @@
+# Dépendances de base
+pyserial==3.5
+Pillow==11.1.0
+PyYAML==6.0.2
+requests==2.31.0
+python-dotenv==1.0.1
+tk==0.1.0
+
+# Dépendances spécifiques à la Raspberry Pi
+adafruit-circuitpython-thermal-printer==1.4.0
+python-escpos==3.1
+python-barcode==0.15.1
+qrcode==8.0
+RPi.GPIO==0.7.1
+
+# Dépendances pour la traduction
+googletrans==3.1.0a0
+
+# Note: Les paquets système suivants doivent être installés via apt:
+# sudo apt-get update && sudo apt-get upgrade
+# sudo apt-get install python3 python3-pip
+# sudo apt-get install python3-tk
+# sudo apt-get install python3-serial
+# sudo apt-get install xprintidle
+# sudo apt-get install xserver-xorg 
