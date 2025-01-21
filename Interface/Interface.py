@@ -70,15 +70,28 @@ class InterfaceGraphique:
         for widget in self.button_frame.winfo_children():
             widget.destroy()
 
+        # Afficher d'abord le message de la fortune
+        message_label = tk.Label(self.button_frame, text=message, font=("Helvetica", 24), bg='white', fg='black', wraplength=800)
+        message_label.pack(pady=20)
+
+        # Ajouter un peu d'espace
+        spacer = tk.Frame(self.button_frame, height=20, bg='white')
+        spacer.pack()
+
+        # Ensuite afficher la question d'impression
         label = tk.Label(self.button_frame, text="Voulez-vous imprimer la fortune ?", font=("Helvetica", 30), bg='white', fg='black')
-        label.pack(pady=20)
+        label.pack(pady=10)
+
+        # Frame pour les boutons
+        button_frame = tk.Frame(self.button_frame, bg='white')
+        button_frame.pack(pady=10)
 
         # Bouton Oui
-        oui_button = tk.Button(self.button_frame, text="Oui", font=("Helvetica", 16), command=lambda: self.imprimer_fortune(message))
+        oui_button = tk.Button(button_frame, text="Oui", font=("Helvetica", 16), command=lambda: self.imprimer_fortune(message))
         oui_button.pack(side=tk.LEFT, padx=20)
 
         # Bouton Non
-        non_button = tk.Button(self.button_frame, text="Non", font=("Helvetica", 16), command=lambda: self.afficher_message(message))
+        non_button = tk.Button(button_frame, text="Non", font=("Helvetica", 16), command=lambda: self.afficher_message(message))
         non_button.pack(side=tk.RIGHT, padx=20)
 
     def afficher_menu(self):
