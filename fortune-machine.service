@@ -1,16 +1,15 @@
 [Unit]
 Description=Fortune Machine Service
 After=multi-user.target
-StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/FortuneMachine_CodeRaspberryPI-main
-ExecStart=/usr/bin/python3 main.py
-Restart=always
-RestartSec=1
 Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+ExecStart=/bin/bash /home/pi/FortuneMachine_CodeRaspberryPI-main/start_fortune_machine.sh
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target 

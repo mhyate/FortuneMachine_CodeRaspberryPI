@@ -8,6 +8,7 @@ from Classes.Meteotry import Meteotry
 from Classes.Horoscope import Horoscope
 from Classes.Blagues import Blagues
 import platform
+import time
 
 # Ajouter le chemin de l'image de fond
 cheminBGImage = os.path.join(os.path.dirname(__file__), 'background.png')
@@ -44,6 +45,15 @@ class InterfaceGraphique:
         print("Création du cadre des boutons...")
         self.button_frame = tk.Frame(self.canvas, bg='white')
         self.button_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        # Ajouter une zone cliquable invisible dans le coin supérieur droit
+        exit_zone = tk.Label(self.root, text="", bg='white', width=5, height=2)
+        exit_zone.place(x=self.root.winfo_screenwidth()-50, y=0)
+        exit_zone.bind('<Button-1>', self.sequence_sortie)
+        
+        # Compteur pour la séquence de sortie
+        self.click_count = 0
+        self.last_click_time = 0
 
     def update_background(self):
         """Met à jour l'image de fond"""
@@ -179,3 +189,22 @@ class InterfaceGraphique:
         """Lancer l'interface"""
         self.afficher_menu()
         self.root.mainloop()
+
+    def sequence_sortie(self, event):
+        """Gère la séquence de clics pour quitter l'application"""
+        current_time = time.time()
+        
+        # Réinitialiser le compteur si plus de 2 secondes se sont écoulées
+        if current_time - self.last_click_time > 2:
+            self.click_count = 0
+        
+        self.click_count += 1
+        self.last_click_time = current_time
+        
+        # Après 5 clics rapides, quitter l'application
+        if self.click_count >= 5:
+            print("Séquence de sortie activée")
+            self.root.quit()
+            # Exécuter la commande pour retourner au bureau
+            if platform.system() != 'Darwin':  # Si on est sur Raspberry Pi
+                os.system('sudo systemctl start lightdm')
