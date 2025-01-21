@@ -71,19 +71,19 @@ class InterfaceGraphique:
             widget.destroy()
 
         # Afficher d'abord le message de la fortune
-        message_label = tk.Label(self.button_frame, text=message, font=("Helvetica", 24), bg='white', fg='black', wraplength=800)
-        message_label.pack(pady=20)
+        self.message_label = tk.Label(self.button_frame, text=message, font=("Helvetica", 24), bg='white', fg='black', wraplength=800)
+        self.message_label.pack(pady=20)
 
-        # Ajouter un peu d'espace
-        spacer = tk.Frame(self.button_frame, height=20, bg='white')
-        spacer.pack()
+        # Frame pour la question et les boutons (pour pouvoir les supprimer facilement)
+        self.question_frame = tk.Frame(self.button_frame, bg='white')
+        self.question_frame.pack(pady=10)
 
         # Ensuite afficher la question d'impression
-        label = tk.Label(self.button_frame, text="Voulez-vous imprimer la fortune ?", font=("Helvetica", 30), bg='white', fg='black')
+        label = tk.Label(self.question_frame, text="Voulez-vous imprimer la fortune ?", font=("Helvetica", 30), bg='white', fg='black')
         label.pack(pady=10)
 
         # Frame pour les boutons
-        button_frame = tk.Frame(self.button_frame, bg='white')
+        button_frame = tk.Frame(self.question_frame, bg='white')
         button_frame.pack(pady=10)
 
         # Bouton Oui
@@ -91,8 +91,16 @@ class InterfaceGraphique:
         oui_button.pack(side=tk.LEFT, padx=20)
 
         # Bouton Non
-        non_button = tk.Button(button_frame, text="Non", font=("Helvetica", 16), command=lambda: self.afficher_message(message))
+        non_button = tk.Button(button_frame, text="Non", font=("Helvetica", 16), command=self.cacher_question)
         non_button.pack(side=tk.RIGHT, padx=20)
+
+    def cacher_question(self):
+        """Cache la question et les boutons, laissant uniquement le message affiché"""
+        self.question_frame.destroy()
+        
+        # Ajouter le bouton retour
+        retour_button = tk.Button(self.button_frame, text="Retour", font=("Helvetica", 16), command=self.reinitialiser_interface)
+        retour_button.pack(pady=10)
 
     def afficher_menu(self):
         """Affiche le menu principal avec les thèmes"""
@@ -110,14 +118,29 @@ class InterfaceGraphique:
     def imprimer_fortune(self, texte):
         """Imprime la fortune si une imprimante est connectée"""
         if self.printer:
+            # Cacher la question et les boutons
+            self.question_frame.destroy()
+            
             # Afficher le message d'impression en cours
-            self.afficher_message("Impression...")
-            # Attendre 3 secondes puis retourner au menu
-            self.root.after(3000, self.afficher_menu)
+            status_label = tk.Label(self.button_frame, text="Impression...", font=("Helvetica", 24), bg='white', fg='black')
+            status_label.pack(pady=10)
+            
             # Simuler l'impression dans la console
             print(f"Fortune imprimée : {texte}")
+            
+            # Attendre 3 secondes puis retourner au menu
+            self.root.after(3000, self.reinitialiser_interface)
         else:
-            self.afficher_message("Aucune imprimante connectée.")
+            # Cacher la question et les boutons
+            self.question_frame.destroy()
+            
+            # Afficher le message d'erreur
+            error_label = tk.Label(self.button_frame, text="Aucune imprimante connectée.", font=("Helvetica", 24), bg='white', fg='black')
+            error_label.pack(pady=10)
+            
+            # Ajouter le bouton retour
+            retour_button = tk.Button(self.button_frame, text="Retour", font=("Helvetica", 16), command=self.reinitialiser_interface)
+            retour_button.pack(pady=10)
 
     def recuperer_message_api(self, theme):
         """Récupère un message depuis l'API correspondante au thème choisi"""
